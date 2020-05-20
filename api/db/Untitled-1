@@ -1,0 +1,29 @@
+
+docker run -d -v $(pwd)/api/db/data:/var/lib/mysql --rm --name mysql-container mysql-image
+docker ps
+
+docker exec -i mysql-container mysql -uroot -p123456789 < api/db/scripts.sql
+
+docker exec -it mysql-container /bin/bash
+
+
+docker build -t node-image -f api/Dockerfile .
+docker image ls
+
+docker run -d -v $(pwd)/api:/home/node/app -p 3333:3333 --link mysql-container --rm --name node-container node-image
+
+
+docker build -t front-image -f frontend/Dockerfile .
+docker run -p 3001:3000 --link node-container --rm --name front-container front-image
+
+https://nodejs.org/fr/docs/guides/nodejs-docker-webapp/
+
+
+docker run \
+    -it \
+    --rm \
+    -v ${PWD}:/app \
+    -v /app/node_modules \
+    -p 3001:3000 \
+    -e CHOKIDAR_USEPOLLING=true \
+    sample:dev
